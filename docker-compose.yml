@@ -1,0 +1,106 @@
+version: "3.4"
+
+networks:
+ docker-net:
+  name: docker-net
+  driver: bridge
+  ipam:
+    config:
+      - subnet: 172.1.1.0/24
+
+services:
+
+  mongo000:
+    image: mongo:7.0
+    container_name: mongo000
+    hostname: mongo000
+    restart: unless-stopped
+    networks:
+      docker-net:
+        ipv4_address: 172.1.1.10
+    environment:
+      TZ: ${TZ}
+    volumes:
+      - ./docker-disks/mongo000-data:/data/db
+
+  mongo001:
+    image: mongo:7.0
+    container_name: mongo001
+    hostname: mongo001
+    restart: unless-stopped
+    networks:
+      docker-net:
+        ipv4_address: 172.1.1.11
+    environment:
+      TZ: ${TZ}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+    ports:
+      - "27001:27017"
+    volumes:
+      - ./docker-disks/mongo001-data:/data/db
+      - ./keyfile:/keyfile
+    entrypoint:
+      - bash
+      - -c
+      - |
+          cp /keyfile /mongo_keyfile
+          chmod 400 /mongo_keyfile
+          chown 999:999 /mongo_keyfile
+          exec docker-entrypoint.sh $$@
+    command: mongod --replSet mongo-repl --keyFile /mongo_keyfile --bind_ip_all
+
+  mongo002:
+    image: mongo:7.0
+    container_name: mongo002
+    hostname: mongo002
+    restart: unless-stopped
+    networks:
+      docker-net:
+        ipv4_address: 172.1.1.12
+    environment:
+      TZ: ${TZ}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+    ports:
+      - "27002:27017"
+    volumes:
+      - ./docker-disks/mongo002-data:/data/db
+      - ./keyfile:/keyfile
+    entrypoint:
+      - bash
+      - -c
+      - |
+          cp /keyfile /mongo_keyfile
+          chmod 400 /mongo_keyfile
+          chown 999:999 /mongo_keyfile
+          exec docker-entrypoint.sh $$@
+    command: mongod --replSet mongo-repl --keyFile /mongo_keyfile --bind_ip_all
+
+  mongo003:
+    image: mongo:7.0
+    container_name: mongo003
+    hostname: mongo003
+    restart: unless-stopped
+    networks:
+      docker-net:
+        ipv4_address: 172.1.1.13
+    environment:
+      TZ: ${TZ}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+    ports:
+      - "27003:27017"
+    volumes:
+      - ./docker-disks/mongo003-data:/data/db
+      - ./keyfile:/keyfile
+    entrypoint:
+      - bash
+      - -c
+      - |
+          cp /keyfile /mongo_keyfile
+          chmod 400 /mongo_keyfile
+          chown 999:999 /mongo_keyfile
+          exec docker-entrypoint.sh $$@
+    command: mongod --replSet mongo-repl --keyFile /mongo_keyfile --bind_ip_all
+
